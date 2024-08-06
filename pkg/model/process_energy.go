@@ -191,6 +191,7 @@ func addEstimatedEnergy(processIDList []uint64, processesMetrics map[uint64]*sta
 	// estimate the associated power consumption of all RAPL node components for each process
 	if ProcessComponentPowerModel.IsEnabled() {
 		processComponentsPower, errComp = ProcessComponentPowerModel.GetComponentsPower(isIdlePower)
+		fmt.Printf("Process Components Power: %+v, Error: %v\n", processComponentsPower, errComp)
 		if errComp != nil {
 			klog.V(5).Infoln("Could not estimate the Process Components Power")
 		}
@@ -198,6 +199,7 @@ func addEstimatedEnergy(processIDList []uint64, processesMetrics map[uint64]*sta
 		if config.EnabledGPU {
 			if gpu := acc.GetRegistry().ActiveAcceleratorByType(acc.GPU); gpu != nil {
 				processGPUPower, errGPU = ProcessComponentPowerModel.GetGPUPower(isIdlePower)
+				fmt.Printf("Process GPU Power: %+v, Error: %v\n", processGPUPower, errGPU)
 				if errGPU != nil {
 					klog.V(5).Infoln("Could not estimate the Process GPU Power")
 				}
@@ -207,6 +209,7 @@ func addEstimatedEnergy(processIDList []uint64, processesMetrics map[uint64]*sta
 	// estimate the associated power consumption of platform for each process
 	if ProcessPlatformPowerModel.IsEnabled() {
 		processPlatformPower, errPlat = ProcessPlatformPowerModel.GetPlatformPower(isIdlePower)
+		fmt.Printf("Process Platform Power: %+v, Error: %v\n", processPlatformPower, errPlat)
 		if errPlat != nil {
 			klog.V(5).Infoln("Could not estimate the Process Platform Power")
 		}
@@ -223,6 +226,7 @@ func addEstimatedEnergy(processIDList []uint64, processesMetrics map[uint64]*sta
 			} else {
 				processesMetrics[processID].EnergyUsage[config.DynEnergyInPkg].SetDeltaStat(utils.GenericSocketID, energy)
 			}
+			fmt.Printf("Process ID: %d, PKG Energy: %d\n", processID, energy)
 
 			// add CORE power consumption
 			energy = processComponentsPower[i].Core * config.SamplePeriodSec
@@ -231,6 +235,7 @@ func addEstimatedEnergy(processIDList []uint64, processesMetrics map[uint64]*sta
 			} else {
 				processesMetrics[processID].EnergyUsage[config.DynEnergyInCore].SetDeltaStat(utils.GenericSocketID, energy)
 			}
+			fmt.Printf("Process ID: %d, Core Energy: %d\n", processID, energy)
 
 			// add DRAM power consumption
 			energy = processComponentsPower[i].DRAM * config.SamplePeriodSec
@@ -239,6 +244,7 @@ func addEstimatedEnergy(processIDList []uint64, processesMetrics map[uint64]*sta
 			} else {
 				processesMetrics[processID].EnergyUsage[config.DynEnergyInDRAM].SetDeltaStat(utils.GenericSocketID, energy)
 			}
+			fmt.Printf("Process ID: %d, DRAM Energy: %d\n", processID, energy)
 
 			// add Uncore power consumption
 			energy = processComponentsPower[i].Uncore * config.SamplePeriodSec
@@ -247,6 +253,7 @@ func addEstimatedEnergy(processIDList []uint64, processesMetrics map[uint64]*sta
 			} else {
 				processesMetrics[processID].EnergyUsage[config.DynEnergyInUnCore].SetDeltaStat(utils.GenericSocketID, energy)
 			}
+			fmt.Printf("Process ID: %d, Uncore Energy: %d\n", processID, energy)
 
 			// add GPU power consumption
 			if errGPU == nil {
@@ -256,6 +263,7 @@ func addEstimatedEnergy(processIDList []uint64, processesMetrics map[uint64]*sta
 				} else {
 					processesMetrics[processID].EnergyUsage[config.DynEnergyInGPU].SetDeltaStat(utils.GenericSocketID, energy)
 				}
+				fmt.Printf("Process ID: %d, GPU Energy: %d\n", processID, energy)
 			}
 		}
 
@@ -266,6 +274,7 @@ func addEstimatedEnergy(processIDList []uint64, processesMetrics map[uint64]*sta
 			} else {
 				processesMetrics[processID].EnergyUsage[config.DynEnergyInPlatform].SetDeltaStat(utils.GenericSocketID, energy)
 			}
+			fmt.Printf("Process ID: %d, Platform Energy: %d\n", processID, energy)
 		}
 
 		// estimate other components power if both platform and components power are available
@@ -283,6 +292,7 @@ func addEstimatedEnergy(processIDList []uint64, processesMetrics map[uint64]*sta
 			} else {
 				processesMetrics[processID].EnergyUsage[config.DynEnergyInOther].SetDeltaStat(utils.GenericSocketID, energy)
 			}
+			fmt.Printf("Process ID: %d, Other Energy: %d\n", processID, energy)
 		}
 	}
 }
